@@ -18,7 +18,7 @@ lint: |
   flake8
 platforms:
   - name: devops-dev-1
-    box: onlyoffice/base-ubuntu2404
+    box: bento/ubuntu-24.04
     memory: 2048
     cpus: 1
 #    provider_options:

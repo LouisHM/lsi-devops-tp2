@@ -1,3 +1,22 @@
 ---
 
 # Configuration dédiée au groupe de la BDD
+
+# Variables pour geerlingguy.mysql
+mysql_root_password: "devops_root_pass"
+
+mysql_databases:
+  - name: devopsapp
+    encoding: utf8mb4
+    collation: utf8mb4_general_ci
+
+mysql_users:
+  - name: appuser
+    host: localhost
+    password: "devops_app_pass"
+    priv: "devopsapp.*:ALL"
+
+# Désactive la réplication pour éviter le bug geerlingguy.mysql sur Ansible 2.18+
+mysql_replication_role: ""
+mysql_replication_master: ""
+mysql_replication_master_inventory_host: "127.0.0.1"
