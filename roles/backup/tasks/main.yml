@@ -1,0 +1,25 @@
+---
+
+- name: Create backup directory
+  ansible.builtin.file:
+    path: "{{ backup_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Deploy backup script
+  ansible.builtin.template:
+    src: backup.sh.j2
+    dest: /usr/local/bin/devops-backup.sh
+    owner: root
+    group: root
+    mode: "0750"
+
+- name: Schedule daily backup via cron
+  ansible.builtin.cron:
+    name: "devops daily backup"
+    user: root
+    hour: "{{ backup_cron_hour }}"
+    minute: "{{ backup_cron_minute }}"
+    job: "/usr/local/bin/devops-backup.sh >> /var/log/devops-backup.log 2>&1"

@@ -1,0 +1,19 @@
+---
+
+# Répertoire de stockage des backups
+backup_dir: /var/backups/devops
+
+# Nombre de backups à conserver
+backup_keep: 7
+
+# Base de données à sauvegarder
+backup_db_name: "{{ db_name | default('devopsapp') }}"
+backup_db_user: root
+backup_db_password: "{{ vault_mysql_root_password }}"
+
+# Répertoire de l'application à sauvegarder
+backup_app_dir: "{{ app_dir | default('/opt/devops-app') }}"
+
+# Planification cron (défaut : tous les jours à 2h00)
+backup_cron_hour: "2"
+backup_cron_minute: "0"

@@ -1,6 +1,8 @@
 roles/*
 !roles/requirements.yml
 !roles/maildev/
+!roles/postfix/
+!roles/backup/
 .vagrant
 *.retry
 .virtualenv

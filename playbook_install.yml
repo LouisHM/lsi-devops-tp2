@@ -31,3 +31,15 @@
   become: true
   roles:
     - { role: maildev, tags: ["maildev"] }
+
+- name: Installation de Postfix (MTA production)
+  hosts: postfix
+  become: true
+  roles:
+    - { role: postfix, tags: ["postfix"] }
+
+- name: Gestion des backups automatisés
+  hosts: backup
+  become: true
+  roles:
+    - { role: backup, tags: ["backup"] }

@@ -20,3 +20,9 @@ devops-dev-1
 
 [maildev]
 devops-dev-1
+
+[postfix]
+devops-dev-1
+
+[backup]
+devops-dev-1

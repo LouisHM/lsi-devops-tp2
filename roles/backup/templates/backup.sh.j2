@@ -1,0 +1,24 @@
+#!/bin/bash
+# {{ ansible_managed }}
+set -euo pipefail
+
+BACKUP_DIR="{{ backup_dir }}"
+DATE=$(date +%Y%m%d_%H%M%S)
+KEEP={{ backup_keep }}
+
+echo "[$(date)] Début du backup"
+
+# Dump de la base de données
+mysqldump -u {{ backup_db_user }} -p'{{ backup_db_password }}' \
+  {{ backup_db_name }} | gzip > "${BACKUP_DIR}/db_${DATE}.sql.gz"
+echo "[$(date)] DB sauvegardée : db_${DATE}.sql.gz"
+
+# Archive des fichiers applicatifs
+tar -czf "${BACKUP_DIR}/app_${DATE}.tar.gz" {{ backup_app_dir }}
+echo "[$(date)] App sauvegardée : app_${DATE}.tar.gz"
+
+# Rotation : suppression des anciens backups
+ls -t "${BACKUP_DIR}"/db_*.sql.gz 2>/dev/null | tail -n +$((KEEP + 1)) | xargs -r rm --
+ls -t "${BACKUP_DIR}"/app_*.tar.gz 2>/dev/null | tail -n +$((KEEP + 1)) | xargs -r rm --
+
+echo "[$(date)] Backup terminé (rotation : conservation des ${KEEP} derniers)"

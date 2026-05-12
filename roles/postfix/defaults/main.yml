@@ -1,0 +1,13 @@
+---
+
+# Nom du domaine mail
+postfix_domain: "example.com"
+
+# Hostname utilisé par Postfix
+postfix_hostname: "{{ ansible_hostname }}"
+
+# Type d'installation : satellite (relay vers un SMTP externe) ou local
+postfix_inet_interfaces: loopback-only
+
+# Relay host (laisser vide pour envoi direct)
+postfix_relayhost: ""

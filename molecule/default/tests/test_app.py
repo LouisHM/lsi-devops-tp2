@@ -58,3 +58,27 @@ def test_maildev_smtp_listening(host):
 
 def test_maildev_web_listening(host):
     assert host.socket("tcp://0.0.0.0:1080").is_listening
+
+
+def test_postfix_service_running_and_enabled(host):
+    postfix_service = host.service("postfix")
+    assert postfix_service.is_running
+    assert postfix_service.is_enabled
+
+
+def test_postfix_smtp_listening(host):
+    assert host.socket("tcp://127.0.0.1:25").is_listening
+
+
+def test_backup_script_exists(host):
+    assert host.file("/usr/local/bin/devops-backup.sh").exists
+    assert host.file("/usr/local/bin/devops-backup.sh").mode == 0o750
+
+
+def test_backup_directory_exists(host):
+    assert host.file("/var/backups/devops").is_directory
+
+
+def test_backup_cron_scheduled(host):
+    crontab = host.run("crontab -l -u root")
+    assert "devops-backup.sh" in crontab.stdout
