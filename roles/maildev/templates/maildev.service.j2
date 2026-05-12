@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Maildev - SMTP dev server
+After=network.target
+
+[Service]
+Type=simple
+User={{ maildev_user }}
+ExecStart=/usr/bin/maildev --smtp {{ maildev_smtp_port }} --web {{ maildev_web_port }}
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,48 @@
+---
+
+- name: Install Node.js and npm
+  ansible.builtin.apt:
+    name:
+      - nodejs
+      - npm
+    state: present
+    update_cache: true
+
+- name: Install maildev via npm
+  community.general.npm:
+    name: maildev
+    global: true
+    state: present
+
+- name: Create maildev system user
+  ansible.builtin.user:
+    name: "{{ maildev_user }}"
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
+
+- name: Deploy maildev systemd service
+  ansible.builtin.template:
+    src: maildev.service.j2
+    dest: /etc/systemd/system/maildev.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart maildev
+
+- name: Enable and start maildev service
+  ansible.builtin.systemd:
+    name: maildev
+    enabled: true
+    state: started
+
+- name: Deploy maildev nginx vhost
+  ansible.builtin.template:
+    src: nginx-maildev.conf.j2
+    dest: /etc/nginx/conf.d/maildev.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload nginx

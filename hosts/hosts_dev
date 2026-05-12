@@ -17,3 +17,6 @@ devops-dev-1
 
 [database]
 devops-dev-1
+
+[maildev]
+devops-dev-1

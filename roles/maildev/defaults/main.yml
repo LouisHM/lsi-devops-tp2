@@ -1,0 +1,14 @@
+---
+
+# Port de l'interface web Maildev
+maildev_web_port: 1080
+
+# Port SMTP Maildev
+maildev_smtp_port: 1025
+
+# Utilisateur système dédié
+maildev_user: maildev
+
+# Port nginx pour l'interface web
+maildev_nginx_port: 1080
+maildev_nginx_server_name: "_"

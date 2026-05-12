@@ -25,3 +25,9 @@
   become: true
   roles:
     - { role: geerlingguy.certbot, tags: ["certbot"] }
+
+- name: Installation de Maildev (SMTP de développement)
+  hosts: maildev
+  become: true
+  roles:
+    - { role: maildev, tags: ["maildev"] }
