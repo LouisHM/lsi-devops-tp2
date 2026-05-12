@@ -1,104 +1,161 @@
-# TP DevOps - Ansible
+# TP DevOps - Ansible : Déploiement d'une stack Flask + MySQL + Nginx
 
-Projet d'exemple pour la prise en main d'Ansible dans un contexte DevOps.
-Il illustre le déploiement automatisé d'une stack applicative (base de données, serveur API, reverse proxy Nginx) à l'aide de playbooks Ansible et de l'outil de test Molecule.
+Projet d'automatisation du déploiement d'une application **Flask** avec une base de données **MySQL** et un reverse proxy **Nginx**, via Ansible et des tests Molecule.
 
-## Prérequis
+## Membres du binôme
 
-Avant de commencer, assurez-vous d'avoir installé les outils suivants sur votre machine :
+- Louis Maury
 
-- [Python 3.12](https://www.python.org/download/)
-  ```bash
-  sudo apt-get install python3 python3-pip
-  sudo pip3 install virtualenv
-  ```
-- [VirtualBox](https://www.virtualbox.org/)
-- [Vagrant](https://www.vagrantup.com/)
+## Application déployée
 
-## Mise en place de l'environnement local
+**Flask Hello World API** — une API HTTP minimaliste en Python/Flask qui :
+- Expose `GET /` → retourne `Hello DevOps!`
+- Expose `GET /health` → vérifie la connectivité MySQL et retourne un JSON de statut
+- Tourne en tant que service systemd sur le port **5000**
+- Est exposée via un reverse proxy Nginx sur le port **80**
 
-Ce projet utilise un environnement virtuel Python pour isoler les dépendances. Pour l'initialiser, exécutez depuis la racine du projet :
-
+Pour lancer manuellement (sur la VM) :
 ```bash
-source venv.sh
+cd /opt/devops-app
+DB_HOST=localhost DB_USER=appuser DB_PASSWORD=devops_app_pass DB_NAME=devopsapp \
+  ./venv/bin/python app.py
 ```
 
-Cette commande crée l'environnement virtuel, l'active et installe toutes les dépendances Python nécessaires (Ansible, Molecule, etc.).
+## Bonus implémentés
 
-Des fonctions utilitaires sont ensuite disponibles dans le terminal :
-- `download_galaxy` — télécharge les rôles Ansible déclarés dans `roles/requirements.yml`
-- `rebuild_env` — recrée l'environnement virtuel from scratch
+| # | Bonus | Description |
+|---|---|---|
+| 4.1 | **Ansible Vault** | Secrets MySQL chiffrés dans `group_vars/*/vault.yml`, aucun mot de passe en clair |
+| 4.2 | **Multi-environnements** | Inventaires et group_vars distincts pour `staging` et `prod` |
+| 4.3 | **Certbot** | `geerlingguy.certbot` installé, renouvellement auto, activation conditionnelle en prod |
+| 4.4 | **Maildev** | Serveur SMTP de dev (port 1025) avec interface web nginx (port 1080) |
+| 4.5 | **Postfix** | MTA configuré en loopback-only via template Jinja2, activé en prod |
+| 4.6 | **Backup** | Script `mysqldump` + archive `tar.gz`, rotation 7j, cron quotidien à 2h |
+
+---
+
+## Prérequis système
+
+| Outil | Version minimale | Vérification |
+|---|---|---|
+| Python | 3.12+ | `python3.12 --version` |
+| VirtualBox | 7.0+ | `vboxmanage --version` |
+| Vagrant | 2.4+ | `vagrant --version` |
+
+**macOS** — installation via Homebrew :
+```bash
+brew install --cask virtualbox vagrant
+```
+
+---
+
+## Mise en place de l'environnement
+
+```bash
+# 1. Activer le virtualenv Python (crée si absent, installe les dépendances)
+source venv.sh
+
+# 2. Télécharger les rôles et collections Galaxy
+download_galaxy
+
+# 3. Créer le fichier de mot de passe vault (ne jamais committer !)
+echo "password" > .devops_vault_pass.txt
+```
+
+Fonctions disponibles après `source venv.sh` :
+- `download_galaxy` — télécharge rôles (`roles/`) et collections (`.ansible/collections/`)
+- `rebuild_env` — recrée le virtualenv depuis zéro
 - `deactivate` — quitte l'environnement virtuel
 
-## Développement et tests avec Molecule
-
-Ce projet intègre [Molecule](https://molecule.readthedocs.io/en/stable/) pour tester les rôles Ansible dans des machines virtuelles éphémères.
-
-| Commande | Description |
-|---|---|
-| `molecule converge` | Crée la VM de test et applique les playbooks |
-| `molecule login` | Se connecte en SSH à la machine de test |
-| `molecule verify` | Exécute les tests de vérification |
-| `molecule test` | Lance le cycle de test complet (create → converge → verify → destroy) |
-
-> Avant tout commit, vérifiez que tous les tests passent avec `molecule test`.
+---
 
 ## Structure du projet
 
 ```
 .
-├── hosts/              # Inventaires (machines cibles)
-│   └── hosts_dev       # Inventaire de développement (utilisé par Molecule)
-├── group_vars/         # Variables par groupe d'hôtes
-│   ├── all.yml
-│   ├── api.yml
-│   └── database.yml
-├── roles/              # Rôles Ansible locaux
-│   └── requirements.yml
-├── molecule/           # Configuration des tests Molecule
-├── playbook_install.yml # Playbook principal de déploiement
-└── venv.sh             # Script d'initialisation de l'environnement
+├── hosts/
+│   ├── hosts_dev              # Inventaire dev (Molecule)
+│   ├── hosts_staging          # Inventaire staging
+│   └── hosts_prod             # Inventaire production
+├── group_vars/
+│   ├── all.yml                # Variables globales
+│   ├── api.yml                # Config Flask
+│   ├── database.yml           # Config MySQL
+│   ├── devops_dev/            # Overrides dev + vault chiffré
+│   ├── devops_staging/        # Overrides staging + vault chiffré
+│   └── devops_prod/           # Overrides prod + vault chiffré + certbot
+├── roles/
+│   ├── requirements.yml       # Rôles Galaxy (nginx, mysql, certbot)
+│   ├── runtime/               # Python 3 + pip + venv
+│   ├── app/                   # Flask comme service systemd
+│   ├── webserver/             # nginx reverse proxy (Jinja2)
+│   ├── database/              # MySQL
+│   ├── maildev/               # Maildev SMTP dev + interface web
+│   ├── postfix/               # Postfix MTA (Jinja2)
+│   └── backup/                # Backup DB + fichiers + cron
+├── collections/
+│   └── requirements.yml       # community.mysql, community.general
+├── molecule/default/          # Scénario Molecule (Vagrant + VirtualBox)
+├── playbook_install.yml       # Playbook principal
+└── venv.sh                    # Initialisation de l'environnement Python
 ```
 
-## Déploiement
+---
 
-### 1. Activer l'environnement virtuel
+## Tests avec Molecule
 
 ```bash
-source venv.sh
+# Créer la VM et appliquer le playbook
+molecule converge
+
+# Vérifier que tous les services sont up
+molecule verify
+
+# Cycle complet (create → converge → idempotence → verify → destroy)
+molecule test
+
+# Se connecter à la VM de test
+molecule login
 ```
 
-### 2. Télécharger les rôles Galaxy
+Les tests (`molecule/default/tests/test_app.py`) vérifient :
+- nginx actif (ports 80, 8080)
+- MySQL actif (socket Unix)
+- Service `devops-app` actif (port 5000) + réponse HTTP `Hello DevOps`
+- Maildev actif (SMTP:1025, web:1080)
+- Postfix actif (port 25)
+- Script backup présent, répertoire créé, cron planifié
+
+---
+
+## Qualité du code
 
 ```bash
-download_galaxy
+# Linter Ansible (playbooks + rôles)
+ansible-lint -c .ansible-lint.yml playbook_install.yml roles/runtime roles/app roles/webserver roles/database
+
+# Linter Python (tests Molecule)
+flake8 -v
 ```
 
-### 3. Configurer le vault Ansible
+---
 
-Certaines variables sont chiffrées avec [Ansible Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html).
-Créez un fichier `.devops_vault_pass.txt` à la racine du projet contenant le mot de passe du vault.
+## Déploiement sur une vraie machine
 
-Pour ce projet d'exemple, le mot de passe est : `password`
-
-> **Attention :** Ne poussez jamais ce fichier sur un dépôt distant. Ajoutez-le à votre `.gitignore`.
-
-### 4. Lancer le playbook
-
-Voici la commande pour lancer le playbook si une vrai machine est configuré (ce qui n'est pas le cas pour ce TP).
 ```bash
 ansible-playbook -i hosts/hosts_dev -u devops playbook_install.yml
 ```
 
-## Gestion des vaults
+---
+
+## Gestion du vault Ansible
 
 ```bash
-# Créer un nouveau vault
+# Créer un vault pour les secrets
 ansible-vault create group_vars/devops_dev/vault.yml
 
 # Editer un vault existant
 ansible-vault edit group_vars/devops_dev/vault.yml
-
-# Consulter un vault
-ansible-vault view group_vars/devops_dev/vault.yml
 ```
+
+> **Important :** le fichier `.devops_vault_pass.txt` ne doit jamais être commité (déjà dans `.gitignore`).
