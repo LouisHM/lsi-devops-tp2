@@ -16,3 +16,10 @@ mysql_users:
     priv: "devopsapp_prod.*:ALL"
 
 app_nginx_server_name: "example.com"
+
+# Certbot activé uniquement en production (nécessite un domaine public)
+certbot_create_if_missing: true
+certbot_admin_email: "admin@example.com"
+certbot_certs:
+  - domains:
+      - example.com
