@@ -1,3 +1,19 @@
 ---
 
 # Configuration dédiée au groupe de l'API
+
+app_name: devops-app
+app_dir: /opt/devops-app
+app_user: www-data
+app_port: 5000
+app_host: "127.0.0.1"
+
+# Paramètres de connexion à la base de données
+db_host: localhost
+db_user: appuser
+db_password: "{{ vault_mysql_app_password }}"
+db_name: devopsapp
+
+# Paramètres nginx reverse proxy
+app_nginx_port: 80
+app_nginx_server_name: "_"

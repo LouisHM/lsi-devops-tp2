@@ -34,6 +34,7 @@ provisioner:
   env:
     ANSIBLE_CONFIG: ../../ansible.cfg
     ANSIBLE_LIBRARY: "${VIRTUAL_ENV}/lib/python3.12/site-packages/molecule_vagrant/modules"
+    ANSIBLE_VAULT_PASSWORD_FILE: ../../.devops_vault_pass.txt
   inventory:
     links:
       hosts: ../../hosts/hosts_dev
