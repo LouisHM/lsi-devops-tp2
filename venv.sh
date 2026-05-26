@@ -4,6 +4,7 @@ PYTHON_REQUIREMENTS_FILE=requirements.txt
 
 download_galaxy () {
   ansible-galaxy install -r ${CUR_MOL_VENV_DIR}/roles/requirements.yml -p ${CUR_MOL_VENV_DIR}/roles/ --force
+  ansible-galaxy collection install -r ${CUR_MOL_VENV_DIR}/collections/requirements.yml -p ${CUR_MOL_VENV_DIR}/.ansible/collections/ --force
 }
 
 setup_env () {
