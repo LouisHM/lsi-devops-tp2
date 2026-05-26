@@ -1,7 +1,7 @@
 ---
 
-# Port de l'interface web Maildev
-maildev_web_port: 1080
+# Port de l'interface web Maildev (interne, nginx reverse proxy vers ce port)
+maildev_web_port: 8025
 
 # Port SMTP Maildev
 maildev_smtp_port: 1025
