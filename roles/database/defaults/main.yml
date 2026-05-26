@@ -1,0 +1,15 @@
+---
+
+# Variables pour geerlingguy.mysql 4.3.2 - https://github.com/geerlingguy/ansible-role-mysql
+mysql_root_password: "devops_root_pass"
+
+mysql_databases:
+  - name: devopsapp
+    encoding: utf8mb4
+    collation: utf8mb4_general_ci
+
+mysql_users:
+  - name: appuser
+    host: localhost
+    password: "devops_app_pass"
+    priv: "devopsapp.*:ALL"

@@ -1,0 +1,19 @@
+---
+
+# python3-pymysql est requis par le module community.mysql avant l'install MySQL
+- name: Install MySQL Python driver for Ansible modules
+  ansible.builtin.apt:
+    name: python3-pymysql
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install and configure MySQL via geerlingguy.mysql
+  ansible.builtin.include_role:
+    name: geerlingguy.mysql
+
+- name: Ensure MySQL service is started and enabled
+  ansible.builtin.service:
+    name: mysql
+    state: started
+    enabled: true

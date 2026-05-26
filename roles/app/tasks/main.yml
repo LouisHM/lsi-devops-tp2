@@ -1,0 +1,43 @@
+---
+
+- name: Create application directory
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copy application source
+  ansible.builtin.copy:
+    src: app.py
+    dest: "{{ app_dir }}/app.py"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart app service
+
+- name: Install Flask application Python dependencies
+  ansible.builtin.pip:
+    name:
+      - flask
+      - pymysql
+    virtualenv: "{{ app_dir }}/venv"
+    virtualenv_command: python3 -m venv
+
+- name: Deploy systemd service unit
+  ansible.builtin.template:
+    src: devops-app.service.j2
+    dest: /etc/systemd/system/{{ app_name }}.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart app service
+
+- name: Enable and start application service
+  ansible.builtin.service:
+    name: "{{ app_name }}"
+    state: started
+    enabled: true

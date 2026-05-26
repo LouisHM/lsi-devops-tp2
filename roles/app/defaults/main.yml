@@ -1,0 +1,13 @@
+---
+
+# Nom et répertoire de l'application
+app_name: devops-app
+app_dir: /opt/devops-app
+app_user: www-data
+app_port: 5000
+
+# Connexion à la base de données (surcharger via group_vars ou Vault)
+db_host: localhost
+db_user: appuser
+db_password: apppassword
+db_name: devopsapp

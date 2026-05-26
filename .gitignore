@@ -1,5 +1,9 @@
 roles/*
 !roles/requirements.yml
+!roles/app/
+!roles/runtime/
+!roles/webserver/
+!roles/database/
 !roles/maildev/
 !roles/postfix/
 !roles/backup/

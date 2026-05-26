@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+[Unit]
+Description=DevOps Flask Application
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+User={{ app_user }}
+WorkingDirectory={{ app_dir }}
+Environment="DB_HOST={{ db_host }}"
+Environment="DB_USER={{ db_user }}"
+Environment="DB_PASSWORD={{ db_password }}"
+Environment="DB_NAME={{ db_name }}"
+Environment="APP_PORT={{ app_port }}"
+ExecStart={{ app_dir }}/venv/bin/python {{ app_dir }}/app.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

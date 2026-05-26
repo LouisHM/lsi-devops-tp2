@@ -1,0 +1,8 @@
+---
+
+# Paramètres du vhost nginx pour le reverse proxy applicatif
+app_name: devops-app
+app_host: "127.0.0.1"
+app_port: 5000
+app_nginx_port: 80
+app_nginx_server_name: "_"
